@@ -4,7 +4,8 @@ rm(list=ls())
 library(tableone)
 dir_data = "C:/Users/litkowse/Desktop/Vanguard_2016/Vanguard_2016/data/AnalysisData/1-data/CSV/"
 
-visit3 <- read.table(file = paste(dir_data, "analysis3.csv",sep = ""), header=T,sep=",")
+#visit3 <- read.table(file = paste(dir_data, "analysis3.csv",sep = ""), header=T,sep=",")
+visit3 <- read.csv(file = paste(dir_data, "analysis3.csv",sep = ""), header=T,sep=",")
 
 # Blood pressure variable needs to be changed to Leslie's SAS algorithm
 # Used the eGFR ckdepi measure
