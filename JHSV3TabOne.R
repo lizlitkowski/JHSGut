@@ -27,7 +27,7 @@ tabonerows = as.character(tab1labels$Jackson.Heart.Study)
 bigtab = tab1V3
 row.names(bigtab) = tabonerows
 bigtab$X = NULL
-colnames(bigtab) = "Visit 3"
+colnames(bigtab) = "V3"
 
 # Create Table One for Visit 1
 varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx")
@@ -47,16 +47,16 @@ charNo = paste(NOs,"(",Nopercent,")",sep = "")
 bigtab$V2[32] = charNo  # This line doesn't work quite right....
 
 # Create Table One for Visit 2
-varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx")
+varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CVDHx", "MIHx")
 visit2[varsToFactor] <- lapply(visit2[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","hsCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx")
+vars <- c("age","sex","sbp","dbp","BPjnc7","hsCRP", "hdl","hdl3cat","ldl","ldl5cat","CVDHx","MIHx")
 dput(names(visit2))
 
 tableOnev2 <- CreateTableOne(vars = vars, data = visit2)
 file.out <- paste (dir_data,"jhsv2tabone.csv",sep ="" )
 write.csv(print(tableOnev2,noSpaces=T),file.out)
 tab1V2 = read.csv(file = paste (dir_data,"jhsv2tabone.csv",sep ="" ))
+bigtab[1:11,3] = tab1V2$Overall[1:11]
+bigtab[13:27,3] = tab1V2$Overall[12:26]
 
-visit2$eGFRckdepi
 
-row.names(tab1V2) = as.character(tab1labels$Jackson.Heart.Study)
