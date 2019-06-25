@@ -8,6 +8,11 @@ set meds.msrc;
 format _all_;
 run;
 
+proc print data=msrc (obs = 50); run;
+proc freq data=msrc;
+	tables msrc30a;
+	run;
+
 proc sort data=meds.medcodes  out=medcodes_id nodupkey; by subjid; run; 
 
 
@@ -216,8 +221,7 @@ run;
 proc contents data=htmeds;  run;
 proc print data=htmeds (obs = 30); run;
 
-
-
+proc freq data=htmeds; tables ace; run;
 
 /*print tccodes for ace inhibitors*/
 proc freq data=htmeds; where ace=1; tables tccode tcname; run;
@@ -489,4 +493,35 @@ diuretic_thztype diuretic_thzlike renini vasod;
 run;
 
 proc freq data=save.htmeds_v3; tables ace; run;
+proc freq data=save.htmeds_v3; tables aldo; run;
 
+proc print data=save.htmeds_v3; run;
+
+*options nofmterr;
+data trhtn;
+    format _all_;
+	merge save.htmeds_v3 msrc;
+	/*define number of antihypertensive medication classes--v1*/
+
+    antihtnclass2_v3=sum(of ace aldo alpha arb beta ccb central renini vasod);
+    htmeds01_v3=.; 
+    if msrc30a="N" then htmeds01_v3=30; 
+    if msrc30a="Y" then htmeds01_v3=1; 
+    if msrc30a=" " and msrc2="T" then htmeds01_v3=0; 
+    if msrc30a="Y" and msrc2="T" then htmeds01_v3=.; 
+
+    /*treated for htn at baseline*/
+    htntx=0;
+    if htmeds01_v3=1 and antihtnclass_v3>0 then htntx=1; 
+    /*prevalent atrh at baseline*/
+    prevatrh=0;
+    if htmeds01_v3=. then prevatrh=.;
+    if uncontrolledbp_v3=1 and antihtnclass2_v3>=2 and diuretic=1 then prevatrh=1;
+    if antihtnclass2_v3>=3 and diuretic=1 then prevatrh=1;
+run;
+
+proc contents data = trhtn; run;
+
+proc freq data = trhtn; 
+	tables msrc30a antihtnclass2_v3 htmeds01_v3;
+	run;

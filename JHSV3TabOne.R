@@ -45,6 +45,7 @@ NOs = as.numeric(substr(bigtab[1,2],1,4)) - as.numeric(substr(bigtab[33,2],1,3))
 Nopercent = round(NOs/as.numeric(substr(bigtab[1,2],1,4)),2)
 charNo = paste(NOs,"(",Nopercent,")",sep = "")
 bigtab$V2[32] = charNo  # This line doesn't work quite right....
+colnames(bigtab)[2] = "v1"
 
 # Create Table One for Visit 2
 varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CVDHx", "MIHx")
@@ -56,7 +57,9 @@ tableOnev2 <- CreateTableOne(vars = vars, data = visit2)
 file.out <- paste (dir_data,"jhsv2tabone.csv",sep ="" )
 write.csv(print(tableOnev2,noSpaces=T),file.out)
 tab1V2 = read.csv(file = paste (dir_data,"jhsv2tabone.csv",sep ="" ))
-bigtab[1:11,3] = tab1V2$Overall[1:11]
-bigtab[13:27,3] = tab1V2$Overall[12:26]
+bigtab[c(1:11,13:27,29:33),3] = tab1V2$Overall[c(1:26,30:34)]
+bigtab = bigtab[,c(2,3,1)]
+colnames(bigtab) = c("Visit 1","Visit 2","Visit 3")
 
-
+# Add code for incidents
+# and code for treatment-resistant hypertension
