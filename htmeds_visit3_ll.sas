@@ -1,21 +1,14 @@
-/* Code from Rikki M. Tanner, PhD at the Univsersity of Alabama */
+/* Recreating code from Rikki Tanner, PhD at UAB - for Visit 2*/
 
-*libname meds 'L:\REGARDS\JHS\Jan2016VC\data\data\Visit 3\1-data';
 libname meds 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Visit3\1-data';
+
+
+proc sort data=meds.medcodes  out=medcodes_id nodupkey; by subjid; run; 
 
 data msrc;
 set meds.msrc;
 format _all_;
 run;
-
-proc print data=msrc (obs = 50); run;
-proc freq data=msrc;
-	tables msrc30a;
-	run;
-
-proc sort data=meds.medcodes  out=medcodes_id nodupkey; by subjid; run; 
-
-
 
 data htmeds;
 set meds.medcodes; *(keep=subjid tccode);
@@ -219,9 +212,9 @@ run;
 
 
 proc contents data=htmeds;  run;
-proc print data=htmeds (obs = 30); run;
 
-proc freq data=htmeds; tables ace; run;
+
+
 
 /*print tccodes for ace inhibitors*/
 proc freq data=htmeds; where ace=1; tables tccode tcname; run;
@@ -287,9 +280,7 @@ proc freq data=htmeds; where htmeds=0; tables tccode tcname; run; *check some;
 
 
 
-*libname save 'L:\REGARDS\JHS\htmeds_revised_10262018\Visit3';
-libname save 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\AnalysisData\1-data\CSV\';
-
+libname save 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Visit3';
 
 %macro mec;
 %let n=1;
@@ -476,14 +467,9 @@ tables ace aldo alpha alpha_beta arb beta_cardio_nonselect beta_int_sym beta_car
 run;
 
 
-
-
 proc freq data=t18;
 tables beta_num; 
 run;
-
-
-
 
 
 data save.htmeds_v3;
@@ -493,37 +479,4 @@ diuretic_thztype diuretic_thzlike renini vasod;
 run;
 
 proc freq data=save.htmeds_v3; tables ace; run;
-proc freq data=save.htmeds_v3; tables aldo; run;
 
-proc print data=save.htmeds_v3; run;
-
-*options nofmterr;
-data trhtn;
-    format _all_;
-	merge save.htmeds_v3 msrc;
-	/*define number of antihypertensive medication classes--v1*/
-
-    antihtnclass2_v3=sum(of ace aldo alpha arb beta ccb central renini vasod);
-    htmeds01_v3=.; 
-    if msrc29a=2 then htmeds01_v3=30; 
-    if msrc29a=1 then htmeds01_v3=1; 
-    if msrc29a=. and msrc2="T" then htmeds01_v3=0; 
-    if msrc29a=1 and msrc2="T" then htmeds01_v3=.; 
-
-	*MSRC29A (1/2); 
-
-    /*treated for htn at baseline*/
-    htntx=0;
-    if htmeds01_v3=1 and antihtnclass2_v3>0 then htntx=1; 
-    /*prevalent atrh at baseline*/
-    prevatrh=0;
-    if htmeds01_v3=. then prevatrh=.;
-    if uncontrolledbp_v3=1 and antihtnclass2_v3>=2 and diuretic=1 then prevatrh=1;
-    if antihtnclass2_v3>=3 and diuretic=1 then prevatrh=1;
-run;
-
-proc contents data = trhtn; run;
-
-proc freq data = trhtn; 
-	tables msrc29a msrc2 antihtnclass2_v3 htmeds01_v3 htntx prevatrh;
-	run;

@@ -1,21 +1,14 @@
-/* Code from Rikki M. Tanner, PhD at the Univsersity of Alabama */
+/* Recreating code from Rikki Tanner, PhD at UAB - for Visit 2*/
 
-*libname meds 'L:\REGARDS\JHS\Jan2016VC\data\data\Visit 3\1-data';
-libname meds 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Visit3\1-data';
+libname meds 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Visit2\1-data';
 
-data msrc;
-set meds.msrc;
-format _all_;
-run;
-
-proc print data=msrc (obs = 50); run;
-proc freq data=msrc;
-	tables msrc30a;
-	run;
 
 proc sort data=meds.medcodes  out=medcodes_id nodupkey; by subjid; run; 
 
-
+data msrb;
+set meds.msrb;
+format _all_;
+run;
 
 data htmeds;
 set meds.medcodes; *(keep=subjid tccode);
@@ -189,12 +182,12 @@ run;
 /*check timolol use*/
 proc print data=htmeds; where tccode="3310005010"; run; *3 drops, 1 oral?, 3 indeterminate;
 
-proc print data=save.beta_cardio_nonselect; where subjid="J245504"; run; *timolol drops-- see field msrc4c;
-proc print data=save.beta_cardio_nonselect; where subjid="J519559"; run; *drops-- see field msrc11c;
-proc print data=save.beta_cardio_nonselect; where subjid="J552593"; run; *drops-- see field msrc11c;
+proc print data=save.beta_cardio_nonselect; where subjid="J245504"; run; *timolol drops-- see field msrb4c;
+proc print data=save.beta_cardio_nonselect; where subjid="J519559"; run; *drops-- see field msrb11c;
+proc print data=save.beta_cardio_nonselect; where subjid="J552593"; run; *drops-- see field msrb11c;
 
 /*confirm oral timolol*/
-proc print data=save.beta_cardio_nonselect; where subjid="J227498"; run; *not oral-- see field msrc7c;
+proc print data=save.beta_cardio_nonselect; where subjid="J227498"; run; *not oral-- see field msrb7c;
 
 /*exclude timolol as a beta blocker*/
 data htmeds;
@@ -219,9 +212,9 @@ run;
 
 
 proc contents data=htmeds;  run;
-proc print data=htmeds (obs = 30); run;
 
-proc freq data=htmeds; tables ace; run;
+
+
 
 /*print tccodes for ace inhibitors*/
 proc freq data=htmeds; where ace=1; tables tccode tcname; run;
@@ -287,9 +280,7 @@ proc freq data=htmeds; where htmeds=0; tables tccode tcname; run; *check some;
 
 
 
-*libname save 'L:\REGARDS\JHS\htmeds_revised_10262018\Visit3';
-libname save 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\AnalysisData\1-data\CSV\';
-
+libname save 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Visit2';
 
 %macro mec;
 %let n=1;
@@ -304,7 +295,7 @@ libname save 'C:\Users\litkowse\Desktop\Vanguard_2016\Vanguard_2016\data\Analysi
 	proc sort data=&var. out=&var._id nodupkey; by subjid; run;
 
 	data save.&var;
-	merge &var._id (in=a keep=subjid &var.) msrc(in=b);
+	merge &var._id (in=a keep=subjid &var.) msrb(in=b);
 	by subjid;
 	if a*b;
 	run;
@@ -476,54 +467,16 @@ tables ace aldo alpha alpha_beta arb beta_cardio_nonselect beta_int_sym beta_car
 run;
 
 
-
-
 proc freq data=t18;
 tables beta_num; 
 run;
 
 
-
-
-
-data save.htmeds_v3;
+data save.htmeds_v2;
 set t18;
 keep subjid ace aldo alpha alpha_beta arb beta_cardio_nonselect beta_cardio_vasod beta_int_sym ccb ccb_subtype_dhp ccb_subtype_ndhp central diuretic_loop diuretic_potass
 diuretic_thztype diuretic_thzlike renini vasod;
 run;
 
-proc freq data=save.htmeds_v3; tables ace; run;
-proc freq data=save.htmeds_v3; tables aldo; run;
+proc freq data=save.htmeds_v2; tables ace; run;
 
-proc print data=save.htmeds_v3; run;
-
-*options nofmterr;
-data trhtn;
-    format _all_;
-	merge save.htmeds_v3 msrc;
-	/*define number of antihypertensive medication classes--v1*/
-
-    antihtnclass2_v3=sum(of ace aldo alpha arb beta ccb central renini vasod);
-    htmeds01_v3=.; 
-    if msrc29a=2 then htmeds01_v3=30; 
-    if msrc29a=1 then htmeds01_v3=1; 
-    if msrc29a=. and msrc2="T" then htmeds01_v3=0; 
-    if msrc29a=1 and msrc2="T" then htmeds01_v3=.; 
-
-	*MSRC29A (1/2); 
-
-    /*treated for htn at baseline*/
-    htntx=0;
-    if htmeds01_v3=1 and antihtnclass2_v3>0 then htntx=1; 
-    /*prevalent atrh at baseline*/
-    prevatrh=0;
-    if htmeds01_v3=. then prevatrh=.;
-    if uncontrolledbp_v3=1 and antihtnclass2_v3>=2 and diuretic=1 then prevatrh=1;
-    if antihtnclass2_v3>=3 and diuretic=1 then prevatrh=1;
-run;
-
-proc contents data = trhtn; run;
-
-proc freq data = trhtn; 
-	tables msrc29a msrc2 antihtnclass2_v3 htmeds01_v3 htntx prevatrh;
-	run;
