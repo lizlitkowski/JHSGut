@@ -27,10 +27,13 @@ common_cols <- intersect(colnames(v3total), common_cols)
 totrbind = rbind(v1total[,common_cols],v2total[,common_cols],v3total[,common_cols])
 
 
-varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp")
+varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes")
 totrbind[varsToFactor] <- lapply(totrbind[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp")
+vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","waist","Diabetes","BMI")
 dput(names(totrbind))
+
+typeof(totrbind$waist)
+plot(density(totrbind$waist))
 
 tableOne <- CreateTableOne(vars = vars, data = totrbind, strata = "visit")
 file.out <- paste (dir_data,"jhstabone.csv",sep ="" )
@@ -59,5 +62,4 @@ write.csv(print(tableOne,noSpaces=T),file.out)
 
 
 # Used the eGFR ckdepi measure
-# Add code for incidents
-# and code for treatment-resistant hypertension
+# Add categories for eGFR
