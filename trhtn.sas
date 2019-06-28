@@ -24,7 +24,10 @@
         merge htmeds msr analysis;
 	    antihtnclass2 = sum(of ace aldo alpha arb beta ccb central renini vasod);
         diuretic = sum(of diuretic_loop diuretic_potass diuretic_thzlike diuretic_thztype);
-        htmeds01=.;
+        beta = sum(of beta_cardio_nonselect beta_int_sym beta_cardio_vasod alpha_beta);
+	    alpha = sum(of alpha alpha_beta);
+
+	    htmeds01=.;
 		if &msrin = msra then do;
             if &quest="N" then htmeds01=0; 
             if &quest="Y" then htmeds01=1; 
@@ -49,7 +52,7 @@
 			datatemp = 15;
         end;
 		uncontrolledbp = 0;
-        if sbp > 130 OR dbp > 80 then uncontrolledbp = 1;
+        if sbp > 140 OR dbp > 90 then uncontrolledbp = 1;
 
         /*treated for htn at baseline*/
         htntx=0;
@@ -63,7 +66,7 @@
 	run;
 
 	proc freq data = temp; 
-		tables htmeds01 datatemp diuretic prevatrh beta ccb;
+		tables htmeds01 datatemp diuretic prevatrh beta ccb alpha alpha_beta;
 	run;
 
 	data save.&trhtn;

@@ -29,10 +29,11 @@ totrbind = rbind(v1total[,common_cols],v2total[,common_cols],v3total[,common_col
 
 varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes")
 totrbind[varsToFactor] <- lapply(totrbind[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","waist","Diabetes","BMI")
+vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
 dput(names(totrbind))
 
 typeof(totrbind$waist)
+typeof(totrbind$BMI)
 plot(density(totrbind$waist))
 
 tableOne <- CreateTableOne(vars = vars, data = totrbind, strata = "visit")
