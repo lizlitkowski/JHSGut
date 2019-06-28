@@ -21,20 +21,23 @@ visit3 <- read.csv(file = paste(dir_data, "analysis3.csv",sep = ""), header=T,se
 v3trhtn = read.sas7bdat(paste(save3_dir, "trhtn_v3.sas7bdat", sep=""))
 v3total = merge(visit3,v3trhtn, by = "subjid")
 
-
 common_cols <- intersect(colnames(v1total), colnames(v2total))
 common_cols <- intersect(colnames(v3total), common_cols)
 totrbind = rbind(v1total[,common_cols],v2total[,common_cols],v3total[,common_cols])
 
+totrbind$eGFRCat = "Missing"
+totrbind[which(totrbind$eGFRckdepi >= 90),111]  = "Stage 1:Normal" 
+totrbind[which(totrbind$eGFRckdepi >= 60 & totrbind$eGFRckdepi < 90 ),111]  = "Stage 2:Mild CKD" 
+totrbind[which(totrbind$eGFRckdepi >= 30 & totrbind$eGFRckdepi < 60 ),111]  = "Stage 3:Moderate CKD" 
+totrbind[which(totrbind$eGFRckdepi >= 15 & totrbind$eGFRckdepi < 30 ),111]  = "Stage 4:Severe CKD" 
+totrbind[which(totrbind$eGFRckdepi < 15 ),111]  = "Stage 5:End Stage CKD" 
 
-varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes")
+table(totrbind$eGFRCat)
+
+varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat")
 totrbind[varsToFactor] <- lapply(totrbind[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
+vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","eGFRCat","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
 dput(names(totrbind))
-
-typeof(totrbind$waist)
-typeof(totrbind$BMI)
-plot(density(totrbind$waist))
 
 tableOne <- CreateTableOne(vars = vars, data = totrbind, strata = "visit")
 file.out <- paste (dir_data,"jhstabone.csv",sep ="" )
