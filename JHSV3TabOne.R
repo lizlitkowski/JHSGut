@@ -32,6 +32,10 @@ totrbind[which(totrbind$eGFRckdepi >= 30 & totrbind$eGFRckdepi < 60 ),111]  = "S
 totrbind[which(totrbind$eGFRckdepi >= 15 & totrbind$eGFRckdepi < 30 ),111]  = "Stage 4:Severe CKD" 
 totrbind[which(totrbind$eGFRckdepi < 15 ),111]  = "Stage 5:End Stage CKD" 
 
+write.csv(totrbind, file = "C:/Users/litkowse/Desktop/jhsegfr.csv")
+#write.csv(totrbind,file = paste(dir_data,"grsStep1.csv"))
+
+
 table(totrbind$eGFRCat)
 
 varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat")
