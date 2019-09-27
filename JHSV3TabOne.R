@@ -38,9 +38,9 @@ write.csv(totrbind, file = "C:/Users/litkowse/Desktop/jhsegfr.csv")
 
 table(totrbind$eGFRCat)
 
-varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat")
+varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat","trigs4cat")
 totrbind[varsToFactor] <- lapply(totrbind[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","eGFRCat","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
+vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","eGFRCat","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","trigs4cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
 dput(names(totrbind))
 
 tableOne <- CreateTableOne(vars = vars, data = totrbind, strata = "visit")
@@ -52,15 +52,26 @@ chdev = read.csv(file = paste(event_dir, "incevtchd.csv",sep = ""), header=T,sep
 table(chdev$CHD.Last.Contact.Type)
 hfev = read.csv(file = paste(event_dir, "incevthfder.csv",sep = ""), header=T,sep=",")
 table(hfev$Last.Contact.Type)
+table(hfev$AFU.Combined.Last.Contact.Type)
+hfev$Cohort.ID
+
+strokev = read.csv(file = paste(event_dir, "incevtstroke.csv",sep = ""), header=T,sep=",")
+table(strokev$Last.Contact.Type)
 
 cohort_dir = "C:/Users/litkowse/Desktop/Vanguard_2016/Vanguard_2016/data/Cohort/1-data/CSV/"
 mort = read.csv(file = paste(cohort_dir, "deathltfucohort.csv",sep = ""), header=T,sep=",")
 table(mort$Death.Indicator)
 
-inctab = merge(chdev,mort, by.x = "Participant.ID", by.y = "PARTICIPANT.ID")
-varsToFactor <- c("CHD.Last.Contact.Type","Death.Indicator")
+step1 = merge(chdev,mort, by.x = "Participant.ID", by.y = "PARTICIPANT.ID")
+step2 = merge(step1,strokev, by.x = "Participant.ID", by.y = "Participant.ID" )
+inctab = merge(step2,hfev, by.x = "Participant.ID", by.y = "Cohort.ID" )
+table(hfev$Last.Contact.Type)
+table(hfev$AFU.Combined.Last.Contact.Type)
+table(inctab$hard.CHD.Last.Contact.Type)
+
+varsToFactor <- c("CHD.Last.Contact.Type","Last.Contact.Type.x","Last.Contact.Type.y","Death.Indicator")
 inctab[varsToFactor] <- lapply(inctab[varsToFactor], factor)
-vars <- c("CHD.Last.Contact.Type","Death.Indicator")
+vars <- c("CHD.Last.Contact.Type","Last.Contact.Type.x","Last.Contact.Type.y","Death.Indicator")
 dput(names(inctab))
 
 tableOne <- CreateTableOne(vars = vars, data = inctab)
