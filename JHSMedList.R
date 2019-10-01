@@ -3,7 +3,6 @@
 rm(list=ls())
 library(sas7bdat)
 library(stringr)
-library(reshape2)
 
 meds_dir ='C:/Users/litkowse/Desktop/Vanguard_2016/Vanguard_2016/data/Visit3/1-data/';
 meds = read.sas7bdat(paste(meds_dir, "msrc.sas7bdat", sep=""))
@@ -35,5 +34,29 @@ Med4Freq = merge(TopSum4, Drug4, by.x = "Var1",by.y = "Dig4" )
 Med2Freq = Med2Freq[order(Med2Freq$Freq, decreasing = T),c(3,4,2)]
 Med4Freq = Med4Freq[order(Med4Freq$Freq, decreasing = T),c(3,4,2)]
 
+Med2Freq$Dig2 = str_sub(Med2Freq$CODE,1,2)
+Med4Freq$Dig4 = str_sub(Med4Freq$CODE,1,4)
+
+IDsPlusCodes = cbind(meds$subjid,OnlyCodes)
+N = length(unique(IDsPlusCodes$`meds$subjid`))
+Dig2Mat = data.frame(sapply(IDsPlusCodes[1:3813,2:24], function(x) str_sub(x,1,2)))
+
+medcount = matrix(0,nrow = 3813, ncol = 12)
+for (i in 1:3813) {
+  for (j in 1:12) {
+    ans = table(Dig2Mat[i,1:23] == Med2Freq$Dig2[j])
+    if (ans[1] < 23) medcount[i,j] = 1
+  }
+}
+
+colnames(medcount) = Med2Freq$NAME
+Med2Freq$n = apply (medcount, 2, FUN = sum)
+Med2Freq$Percent = round(Med2Freq$n/N,2)
+Med2Freq = Med2Freq[order(Med2Freq$n,decreasing = T),c(1,2,5,6)]
+
 write.csv(Med2Freq, paste (dir_code,"Med2Freq.csv",sep ="" ))
 write.csv(Med4Freq, paste (dir_code,"Med4Freq.csv",sep ="" ))
+
+
+# Start the below if we want to get to another level of granularity
+Dig4Mat = sapply(IDsPlusCodes[1:3813,2:24], function(x) str_sub(x,1,4))

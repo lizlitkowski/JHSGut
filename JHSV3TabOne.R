@@ -38,9 +38,9 @@ write.csv(totrbind, file = "C:/Users/litkowse/Desktop/jhsegfr.csv")
 
 table(totrbind$eGFRCat)
 
-varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat","trigs4cat")
+varsToFactor <- c("sex","BPjnc7","hdl3cat","ldl5cat", "CHDHx", "CVDHx", "MIHx","prevatrh","uncontrolledbp","Diabetes", "eGFRCat")
 totrbind[varsToFactor] <- lapply(totrbind[varsToFactor], factor)
-vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","eGFRCat","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","trigs4cat","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
+vars <- c("age","sex","sbp","dbp","BPjnc7","eGFRckdepi","eGFRCat","HSCRP", "hdl","hdl3cat","ldl","ldl5cat","trigs","CHDHx","CVDHx","MIHx","prevatrh","uncontrolledbp","Diabetes","BMI","waist")
 dput(names(totrbind))
 
 tableOne <- CreateTableOne(vars = vars, data = totrbind, strata = "visit")
@@ -53,7 +53,6 @@ table(chdev$CHD.Last.Contact.Type)
 hfev = read.csv(file = paste(event_dir, "incevthfder.csv",sep = ""), header=T,sep=",")
 table(hfev$Last.Contact.Type)
 table(hfev$AFU.Combined.Last.Contact.Type)
-hfev$Cohort.ID
 
 strokev = read.csv(file = paste(event_dir, "incevtstroke.csv",sep = ""), header=T,sep=",")
 table(strokev$Last.Contact.Type)
@@ -78,6 +77,17 @@ tableOne <- CreateTableOne(vars = vars, data = inctab)
 file.out <- paste (dir_data,"inctab.csv",sep ="" )
 write.csv(print(tableOne,noSpaces=T),file.out)
 
+# To add the incidents after Visit 3
+visitevent = merge(chdev,visit3, by.x = "Participant.ID", by.y = "subjid")
+visitevent$sinceV3 = as.Date(visitevent$CHD.Event.or.Censoring.Date,format='%m/%d/%Y') > as.Date(visitevent$VisitDate,format='%m/%d/%Y')
+visitevent$incaftV3 = visitevent$sinceV3 & visitevent$Incidence.CHD == "Yes"
+
+varsToFactor <- c("incaftV3")
+visitevent[varsToFactor] <- lapply(visitevent[varsToFactor], factor)
+vars <- c("incaftV3")
+dput(names(visitevent))
+
+tableOne <- CreateTableOne(vars = vars, data = visitevent, strata = "incaftV3")
 
 
 # Used the eGFR ckdepi measure
